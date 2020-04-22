@@ -348,9 +348,9 @@ static float nk_cairo_text_width(nk_handle handle, float h, const char *text, in
 
 	cairo_text_extents_t extents;
 	cairo_text_extents(nk_cairo, tmp, &extents);
-
 	free(tmp);
-	return extents.width;
+
+	return NK_MAX(extents.width + extents.x_bearing, extents.x_advance);
 }
 
 NK_API struct nk_user_font* nk_cairo_ttf(const char *ttf, int ttf_size)
