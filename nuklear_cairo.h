@@ -178,7 +178,7 @@ nk_cairo_stroke_arc(cairo_t *cairo, int x, int y, int r, float a0, float a1, int
 	nk_cairo_set_color(cairo, col);
 	cairo_set_line_width(cairo, line_thickness);
 	cairo_new_sub_path(cairo);
-	cairo_arc(cairo, x+r, y+r, r, a0, a1);
+	cairo_arc(cairo, x, y, r, a0, a1);
 	cairo_close_path(cairo);
 	cairo_stroke(cairo);
 }
@@ -188,7 +188,7 @@ nk_cairo_fill_arc(cairo_t *cairo, int x, int y, int r, float a0, float a1, struc
 {
 	nk_cairo_set_color(cairo, col);
 	cairo_new_sub_path(cairo);
-	cairo_arc(cairo, x+r, y+r, r, a0, a1);
+	cairo_arc(cairo, x, y, r, a0, a1);
 	cairo_close_path(cairo);
 	cairo_fill(cairo);
 }
@@ -198,7 +198,7 @@ nk_cairo_fill_circle(cairo_t *cairo, int x, int y, int r, struct nk_color col)
 {
 	nk_cairo_set_color(cairo, col);
 	cairo_new_sub_path(cairo);
-	cairo_arc(cairo, x+r, y+r, r, 0, 2*NK_PI);
+	cairo_arc(cairo, x, y, r, 0, 2*NK_PI);
 	cairo_close_path(cairo);
 	cairo_fill(cairo);
 }
@@ -209,7 +209,7 @@ nk_cairo_stroke_circle(cairo_t *cairo, int x, int y, int r, int line_thickness, 
 	nk_cairo_set_color(cairo, col);
 	cairo_set_line_width(cairo, line_thickness);
 	cairo_new_sub_path(cairo);
-	cairo_arc(cairo, x+r, y+r, r, 0, 2*NK_PI);
+	cairo_arc(cairo, x, y, r, 0, 2*NK_PI);
 	cairo_close_path(cairo);
 	cairo_stroke(cairo);
 }
@@ -446,12 +446,14 @@ nk_cairo_render(struct nk_context *ctx, void *fb, int w, int h, int pitch)
 			}
 			case NK_COMMAND_CIRCLE: {
 				struct nk_command_circle *c = (struct nk_command_circle *)cmd;
-				nk_cairo_stroke_circle(cairo, c->x, c->y, (c->w < c->h ? c->w: c->h), c->line_thickness, c->color);
+				int r = (c->w < c->h ? c->w: c->h)/2;
+				nk_cairo_stroke_circle(cairo, c->x+r, c->y+r, r, c->line_thickness, c->color);
 				break;
 			}
 			case NK_COMMAND_CIRCLE_FILLED: {
 				struct nk_command_circle_filled *c = (struct nk_command_circle_filled *)cmd;
-				nk_cairo_fill_circle(cairo, c->x, c->y, (c->w < c->h ? c->w: c->h), c->color);
+				int r = (c->w < c->h ? c->w: c->h)/2;
+				nk_cairo_fill_circle(cairo, c->x+r, c->y+r, r, c->color);
 				break;
 			}
 			case NK_COMMAND_TRIANGLE: {
@@ -498,11 +500,13 @@ nk_cairo_render(struct nk_context *ctx, void *fb, int w, int h, int pitch)
 				break;
 			}
 			case NK_COMMAND_ARC: {
+				fprintf(stderr, "NK_COMMAND_ARC\n");
 				struct nk_command_arc *q = (struct nk_command_arc *)cmd;
 				nk_cairo_stroke_arc(cairo, q->cx, q->cy, q->r, q->a[0], q->a[1], q->line_thickness, q->color);
 				break;
 			}
 			case NK_COMMAND_ARC_FILLED: {
+				fprintf(stderr, "NK_COMMAND_ARC_FILLED\n");
 				struct nk_command_arc_filled *q = (struct nk_command_arc_filled *)cmd;
 				nk_cairo_fill_arc(cairo, q->cx, q->cy, q->r, q->a[0], q->a[1], q->color);
 				break;
